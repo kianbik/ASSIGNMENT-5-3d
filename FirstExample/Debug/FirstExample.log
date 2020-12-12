@@ -1,0 +1,19 @@
+﻿  02_Blending.cpp
+C:\Users\kianb\Desktop\Final Asignment\GAME2012_W13_Lecture\FirstExample\Shape.h(67,21): warning C4018: '<': signed/unsigned mismatch
+C:\Users\kianb\Desktop\Final Asignment\GAME2012_W13_Lecture\FirstExample\Shape.h(79,21): warning C4018: '<': signed/unsigned mismatch
+C:\Users\kianb\Desktop\Final Asignment\GAME2012_W13_Lecture\FirstExample\Shape.h(151,30): warning C4244: 'argument': conversion from 'int' to 'const _Ty', possible loss of data
+          with
+          [
+              _Ty=GLfloat
+          ]
+C:\Users\kianb\Desktop\Final Asignment\GAME2012_W13_Lecture\FirstExample\Shape.h(152,30): warning C4244: 'argument': conversion from 'int' to 'const _Ty', possible loss of data
+          with
+          [
+              _Ty=GLfloat
+          ]
+C:\Users\kianb\Desktop\Final Asignment\GAME2012_W13_Lecture\FirstExample\Shape.h(195,21): warning C4018: '<': signed/unsigned mismatch
+C:\Users\kianb\Desktop\Final Asignment\GAME2012_W13_Lecture\FirstExample\Shape.h(360,1): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\kianb\Desktop\Final Asignment\GAME2012_W13_Lecture\FirstExample\Shape.h(371,1): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\kianb\Desktop\Final Asignment\GAME2012_W13_Lecture\FirstExample\Shape.h(414,21): warning C4018: '<': signed/unsigned mismatch
+C:\Users\kianb\Desktop\Final Asignment\GAME2012_W13_Lecture\FirstExample\Shape.h(442,1): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+  FirstExample.vcxproj -> C:\Users\kianb\Desktop\Final Asignment\GAME2012_W13_Lecture\Debug\FirstExample.exe
