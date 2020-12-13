@@ -62,7 +62,7 @@ float rotAngle = 0.0f;
 
 
 // Texture variables.
-GLuint towerTx, secondTx, wallTx, planeTex, gateTx;
+GLuint towerTx, secondTx, wallTx, planeTex, gateTx, groundTx, headTx, mazeTx;
 GLint width, height, bitDepth;
 
 // Light variables.
@@ -73,7 +73,12 @@ DirectionalLight dLight(glm::vec3(0.0f, -1.0f, 0.0f), // Direction.
 	0.0f);						  // Diffuse strength.
 PointLight pLight(glm::vec3(2.0f, 4.2f, -3.0f),	// Position.
 	1.0f, 0.7f, 1.8f,				// Constant, Linear, Exponent.
-	glm::vec3(1.0f, 1.0f, 1.0f),	// Diffuse colour.
+	glm::vec3(0.0f, 0.0f, 1.0f),	// Diffuse colour.
+	10.0f);						// Diffuse strength.
+
+PointLight pLight1(glm::vec3(2.0f, 4.2f, -18.0f),	// Position.
+	1.0f, 0.7f, 1.8f,				// Constant, Linear, Exponent.
+	glm::vec3(1.0f, 0.0f, 0.0f),	// Diffuse colour.
 	10.0f);						// Diffuse strength.
 Material mat = { 0.1f, 32 }; // Alternate way to construct an object.
 
@@ -95,6 +100,9 @@ Prism g_prism(12);
 Plane g_plane;
 Grid g_grid(10,3); // New UV scale parameter. Works with texture now.
 Gate g_gate;
+Ground g_ground;
+ConeTwo g_head(12);
+Cube g_maze(1);
 void init(void)
 {
 	srand((unsigned)time(NULL));
@@ -166,7 +174,7 @@ void init(void)
 	//glBindTexture(GL_TEXTURE_2D, 0);
 	stbi_image_free(image3);
 
-
+	//gate
 	unsigned char* image4 = stbi_load("gate.png", &width, &height, &bitDepth, 0);
 	if (!image3) cout << "Unable to load file!" << endl;
 
@@ -181,7 +189,51 @@ void init(void)
 	//glBindTexture(GL_TEXTURE_2D, 0);
 	stbi_image_free(image4);
 
-	
+	unsigned char* image5 = stbi_load("dirt.jpg", &width, &height, &bitDepth, 0);
+	if (!image5) cout << "Unable to load file!" << endl;
+	//gorund
+	glGenTextures(1, &groundTx);
+	glBindTexture(GL_TEXTURE_2D, groundTx);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image5);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	stbi_image_free(image5);
+
+	//tower head
+	unsigned char* image6 = stbi_load("stone2.jpg", &width, &height, &bitDepth, 0);
+	if (!image6) cout << "Unable to load file!" << endl;
+
+	glGenTextures(1, &headTx);
+	glBindTexture(GL_TEXTURE_2D, headTx);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image6);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	stbi_image_free(image6);
+
+	//Maze blocks
+	unsigned char* image7 = stbi_load("grass.jpg", &width, &height, &bitDepth, 0);
+	if (!image7) cout << "Unable to load file!" << endl;
+
+	glGenTextures(1, &mazeTx);
+	glBindTexture(GL_TEXTURE_2D, mazeTx);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image7);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	//glBindTexture(GL_TEXTURE_2D, 0);
+	stbi_image_free(image7);
+
+
 
 
 	glUniform1i(glGetUniformLocation(program, "texture0"), 0);
@@ -207,6 +259,14 @@ void init(void)
 	glUniform1f(glGetUniformLocation(program, "pLight.constant"), pLight.constant);
 	glUniform1f(glGetUniformLocation(program, "pLight.linear"), pLight.linear);
 	glUniform1f(glGetUniformLocation(program, "pLight.exponent"), pLight.exponent);
+	//sec
+	glUniform3f(glGetUniformLocation(program, "pLight1.base.diffuseColour"), pLight1.diffuseColour.x, pLight1.diffuseColour.y, pLight1.diffuseColour.z);
+	glUniform1f(glGetUniformLocation(program, "pLight1.base.diffuseStrength"), pLight1.diffuseStrength);
+
+	glUniform3f(glGetUniformLocation(program, "pLight1.position"), pLight1.position.x, pLight1.position.y, pLight1.position.z);
+	glUniform1f(glGetUniformLocation(program, "pLight1.constant"), pLight1.constant);
+	glUniform1f(glGetUniformLocation(program, "pLight1.linear"), pLight1.linear);
+	glUniform1f(glGetUniformLocation(program, "pLight1.exponent"), pLight1.exponent);
 	vao = 0;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
@@ -293,51 +353,92 @@ void display(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glBindVertexArray(vao);
-	// Draw all shapes.
+	
 
 	glBindTexture(GL_TEXTURE_2D, planeTex);
 	g_plane.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
 	transformObject(glm::vec3(1.0f, 1.0f, 1.0f), X_AXIS, -90.0f, glm::vec3(0.0f, 0.0f, 0.0f));
 	glDrawElements(GL_TRIANGLES, g_plane.NumIndices(), GL_UNSIGNED_SHORT, 0);
-	
+
 	glUniform3f(glGetUniformLocation(program, "pLight.position"), pLight.position.x, pLight.position.y, pLight.position.z);
-	
+	glUniform3f(glGetUniformLocation(program, "pLight1.position"), pLight1.position.x, pLight1.position.y, pLight1.position.z);
+
 	//first wall
-	for (int x = 7; x <= 35; x++ ) {
-		glBindTexture(GL_TEXTURE_2D, wallTx);
+	for (int x = 7; x <= 35; x++) {
+		if (x % 2 == 0) {
+			glBindTexture(GL_TEXTURE_2D, wallTx);
+			g_cube.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
+			transformObject(glm::vec3(1.0f, 3.5f, 1.0f), X_AXIS, 0.0f, glm::vec3(x, 0.0f, -4.0f));
+			glDrawElements(GL_TRIANGLES, g_cube.NumIndices(), GL_UNSIGNED_SHORT, 0);
+			glBindTexture(GL_TEXTURE_2D, wallTx);
+		}
+		else
+			glBindTexture(GL_TEXTURE_2D, wallTx);
 		g_cube.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
-		transformObject(glm::vec3(1.0f, 2.0f, 1.0f), X_AXIS, 0.0f, glm::vec3(x, 0.0f, -4.0f));
+		transformObject(glm::vec3(1.0f, 3.0f, 1.0f), X_AXIS, 0.0f, glm::vec3(x, 0.0f, -4.0f));
 		glDrawElements(GL_TRIANGLES, g_cube.NumIndices(), GL_UNSIGNED_SHORT, 0);
 		glBindTexture(GL_TEXTURE_2D, wallTx);
 	}
 	//second wall
 	for (int x = 6; x <= 35; x++) {
-		glBindTexture(GL_TEXTURE_2D, wallTx);
+		if (x % 2 == 0) {
+			glBindTexture(GL_TEXTURE_2D, wallTx);
+			g_cube.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
+			transformObject(glm::vec3(1.0f, 3.5f, 1.0f), X_AXIS, 0.0f, glm::vec3(x, 0.0f, -27.0f));
+			glDrawElements(GL_TRIANGLES, g_cube.NumIndices(), GL_UNSIGNED_SHORT, 0);
+			glBindTexture(GL_TEXTURE_2D, wallTx);
+		}
+		else
+			glBindTexture(GL_TEXTURE_2D, wallTx);
 		g_cube.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
-		transformObject(glm::vec3(1.0f, 2.0f, 1.0f), X_AXIS, 0.0f, glm::vec3(x, 0.0f, -26.0f));
+		transformObject(glm::vec3(1.0f, 3.0f, 1.0f), X_AXIS, 0.0f, glm::vec3(x, 0.0f, -27.0f));
 		glDrawElements(GL_TRIANGLES, g_cube.NumIndices(), GL_UNSIGNED_SHORT, 0);
 		glBindTexture(GL_TEXTURE_2D, wallTx);
 	}
 	//third wall
 	for (int x = -5; x >= -26; x--) {
-		glBindTexture(GL_TEXTURE_2D, wallTx);
+		if (x % 2 == 0) {
+			glBindTexture(GL_TEXTURE_2D, wallTx);
+			g_cube.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
+			transformObject(glm::vec3(1.0f, 3.5f, 1.0f), X_AXIS, 0.0f, glm::vec3(6.0f, 0.0f, x));
+			glDrawElements(GL_TRIANGLES, g_cube.NumIndices(), GL_UNSIGNED_SHORT, 0);
+			glBindTexture(GL_TEXTURE_2D, wallTx);
+		}
+		else
+			glBindTexture(GL_TEXTURE_2D, wallTx);
 		g_cube.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
-		transformObject(glm::vec3(1.0f, 2.0f, 1.0f), X_AXIS, 0.0f, glm::vec3(6.0f, 0.0f, x));
+		transformObject(glm::vec3(1.0f, 3.0f, 1.0f), X_AXIS, 0.0f, glm::vec3(6.0f, 0.0f, x));
 		glDrawElements(GL_TRIANGLES, g_cube.NumIndices(), GL_UNSIGNED_SHORT, 0);
 		glBindTexture(GL_TEXTURE_2D, wallTx);
 	}
 	//forth wall:
 	for (int x = -5; x >= -13; x--) {
-		glBindTexture(GL_TEXTURE_2D, wallTx);
+		if (x % 2 != 0) {
+			glBindTexture(GL_TEXTURE_2D, wallTx);
+			g_cube.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
+			transformObject(glm::vec3(1.0f, 3.5f, 1.0f), X_AXIS, 0.0f, glm::vec3(35.0f, 0.0f, x));
+			glDrawElements(GL_TRIANGLES, g_cube.NumIndices(), GL_UNSIGNED_SHORT, 0);
+			glBindTexture(GL_TEXTURE_2D, wallTx);
+		}
+		else
+			glBindTexture(GL_TEXTURE_2D, wallTx);
 		g_cube.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
-		transformObject(glm::vec3(1.0f, 2.0f, 1.0f), X_AXIS, 0.0f, glm::vec3(35.0f, 0.0f, x));
+		transformObject(glm::vec3(1.0f, 3.0f, 1.0f), X_AXIS, 0.0f, glm::vec3(35.0f, 0.0f, x));
 		glDrawElements(GL_TRIANGLES, g_cube.NumIndices(), GL_UNSIGNED_SHORT, 0);
 		glBindTexture(GL_TEXTURE_2D, wallTx);
 	}
 	for (int x = -18; x >= -26; x--) {
-		glBindTexture(GL_TEXTURE_2D, wallTx);
+		if (x % 2 == 0) {
+			glBindTexture(GL_TEXTURE_2D, wallTx);
+			g_cube.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
+			transformObject(glm::vec3(1.0f, 3.5f, 1.0f), X_AXIS, 0.0f, glm::vec3(35.0f, 0.0f, x));
+			glDrawElements(GL_TRIANGLES, g_cube.NumIndices(), GL_UNSIGNED_SHORT, 0);
+			glBindTexture(GL_TEXTURE_2D, wallTx);
+		}
+		else
+			glBindTexture(GL_TEXTURE_2D, wallTx);
 		g_cube.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
-		transformObject(glm::vec3(1.0f, 2.0f, 1.0f), X_AXIS, 0.0f, glm::vec3(35.0f, 0.0f, x));
+		transformObject(glm::vec3(1.0f, 3.0f, 1.0f), X_AXIS, 0.0f, glm::vec3(35.0f, 0.0f, x));
 		glDrawElements(GL_TRIANGLES, g_cube.NumIndices(), GL_UNSIGNED_SHORT, 0);
 		glBindTexture(GL_TEXTURE_2D, wallTx);
 	}
@@ -345,40 +446,329 @@ void display(void)
 	//tower1
 	glBindTexture(GL_TEXTURE_2D, towerTx);
 	g_prism.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
-	transformObject(glm::vec3(1.5f, 4.5f, 1.5f), X_AXIS, 0.0f, glm::vec3(5.85f, 0.0f, -4.2f));
+	transformObject(glm::vec3(1.5f, 5.5f, 1.5f), X_AXIS, 0.0f, glm::vec3(5.85f, 0.0f, -4.2f));
 	glDrawElements(GL_TRIANGLES, g_prism.NumIndices(), GL_UNSIGNED_SHORT, 0);
+
+
+	glBindTexture(GL_TEXTURE_2D, headTx);
+	g_head.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
+	transformObject(glm::vec3(2.0f, 1.5f, 2.0f), X_AXIS, 0.0f, glm::vec3(5.6f, 5.5f, -4.5f));
+	glDrawElements(GL_TRIANGLES, g_head.NumIndices(), GL_UNSIGNED_SHORT, 0);
+
 
 	//tower2
 	glBindTexture(GL_TEXTURE_2D, towerTx);
 	g_prism.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
-	transformObject(glm::vec3(1.5f, 4.5f, 1.5f), X_AXIS, 0.0f, glm::vec3(5.85f, 0.0f, -26.2f));
+	transformObject(glm::vec3(1.5f, 5.5f, 1.5f), X_AXIS, 0.0f, glm::vec3(5.85f, 0.0f, -27.2f));
 	glDrawElements(GL_TRIANGLES, g_prism.NumIndices(), GL_UNSIGNED_SHORT, 0);
+
+
+	glBindTexture(GL_TEXTURE_2D, headTx);
+	g_head.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
+	transformObject(glm::vec3(2.0f, 1.5f, 2.0f), X_AXIS, 0.0f, glm::vec3(5.6f, 5.5f, -27.5f));
+	glDrawElements(GL_TRIANGLES, g_head.NumIndices(), GL_UNSIGNED_SHORT, 0);
+
 
 	//tower2
 	glBindTexture(GL_TEXTURE_2D, towerTx);
 	g_prism.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
-	transformObject(glm::vec3(1.5f, 4.5f, 1.5f), X_AXIS, 0.0f, glm::vec3(34.85f, 0.0f, -4.2f));
+	transformObject(glm::vec3(1.5f, 5.5f, 1.5f), X_AXIS, 0.0f, glm::vec3(34.85f, 0.0f, -4.2f));
 	glDrawElements(GL_TRIANGLES, g_prism.NumIndices(), GL_UNSIGNED_SHORT, 0);
+
+	glBindTexture(GL_TEXTURE_2D, headTx);
+	g_head.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
+	transformObject(glm::vec3(2.0f, 1.5f, 2.0f), X_AXIS, 0.0f, glm::vec3(34.6f, 5.5f, -4.5f));
+	glDrawElements(GL_TRIANGLES, g_head.NumIndices(), GL_UNSIGNED_SHORT, 0);
+
 
 	//tower2
+
 	glBindTexture(GL_TEXTURE_2D, towerTx);
 	g_prism.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
-	transformObject(glm::vec3(1.5f, 4.5f, 1.5f), X_AXIS, 0.0f, glm::vec3(34.85f, 0.0f, -26.2f));
+	transformObject(glm::vec3(1.5f, 5.5f, 1.5f), X_AXIS, 0.0f, glm::vec3(34.85f, 0.0f, -27.2f));
 	glDrawElements(GL_TRIANGLES, g_prism.NumIndices(), GL_UNSIGNED_SHORT, 0);
 
 
 
+	glBindTexture(GL_TEXTURE_2D, headTx);
+	g_head.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
+	transformObject(glm::vec3(2.0f, 1.5f, 2.0f), X_AXIS, 0.0f, glm::vec3(34.6f, 5.5f, -27.5f));
+	glDrawElements(GL_TRIANGLES, g_head.NumIndices(), GL_UNSIGNED_SHORT, 0);
+
+
+	//ground
+
+
+
+
+	glBindTexture(GL_TEXTURE_2D, groundTx);
+	g_ground.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
+	transformObject(glm::vec3(1.0f, 1.0f, 1.0f), X_AXIS, -90.0f, glm::vec3(6.0f, 1.0f, -4.0f));
+	glDrawElements(GL_TRIANGLES, g_ground.NumIndices(), GL_UNSIGNED_SHORT, 0);
+
+
+
+
+
+
+
+
+
+	//============================================================MAZE==============================================================   mazeTx
+	if(1==1){
+	//13-18
+	for (int x = -12; x >= -17; x--) {
+		glBindTexture(GL_TEXTURE_2D, mazeTx);
+		g_maze.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
+		transformObject(glm::vec3(1.0f, 1.0f, 1.0f), X_AXIS, -90.0f, glm::vec3(7.0f, 1.0f, x));
+		glDrawElements(GL_TRIANGLES, g_maze.NumIndices(), GL_UNSIGNED_SHORT, 0);
+
+	}
+	for (int x = -4; x >= -25; x--) {
+		if (x < -12 && x > -17) {
+
+		}
+		else {
+			transformObject(glm::vec3(1.0f, 1.0f, 1.0f), X_AXIS, -90.0f, glm::vec3(8.0f, 1.0f, x));
+			glDrawElements(GL_TRIANGLES, g_maze.NumIndices(), GL_UNSIGNED_SHORT, 0);
+		}
+	}
+	for (int x = -4; x >= -25; x--) {
+		if (x < -12 && x > -17) {
+
+		}
+		else {
+			transformObject(glm::vec3(1.0f, 1.0f, 1.0f), X_AXIS, -90.0f, glm::vec3(10.0f, 1.0f, x));
+			glDrawElements(GL_TRIANGLES, g_maze.NumIndices(), GL_UNSIGNED_SHORT, 0);
+		}
+
+	}
+	for (int x = 10; x <= 12; x++) {
+
+		transformObject(glm::vec3(1.0f, 1.0f, 1.0f), X_AXIS, -90.0f, glm::vec3(x, 1.0f, -12.0f));
+		glDrawElements(GL_TRIANGLES, g_maze.NumIndices(), GL_UNSIGNED_SHORT, 0);
+	}
+	for (int x = 10; x <= 12; x++) {
+
+		transformObject(glm::vec3(1.0f, 1.0f, 1.0f), X_AXIS, -90.0f, glm::vec3(x, 1.0f, -17.0f));
+		glDrawElements(GL_TRIANGLES, g_maze.NumIndices(), GL_UNSIGNED_SHORT, 0);
+
+
+	}
+	for (int x = -6; x >= -22; x--) {
+		if (x < -12 && x > -17) {
+
+		}
+		else {
+		
+			transformObject(glm::vec3(1.0f, 1.0f, 1.0f), X_AXIS, -90.0f, glm::vec3(12.0f, 1.0f, x));
+			glDrawElements(GL_TRIANGLES, g_maze.NumIndices(), GL_UNSIGNED_SHORT, 0);
+		}
+	}
+	for (int x = 12; x <= 34; x++) {
 
 	
-		//Gate
-		glBindTexture(GL_TEXTURE_2D, gateTx);
-		g_gate.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
-	transformObject(glm::vec3(4.4f, 2.0f, 1.0f), Y_AXIS, 90.0f, glm::vec3(36.0f, 0.0f, -12.8f));
+		transformObject(glm::vec3(1.0f, 1.0f, 1.0f), X_AXIS, -90.0f, glm::vec3(x, 1.0f, -6.0f));
+		glDrawElements(GL_TRIANGLES, g_maze.NumIndices(), GL_UNSIGNED_SHORT, 0);
+
+
+	}
+	for (int x = 12; x <= 34; x++) {
+
+
+		transformObject(glm::vec3(1.0f, 1.0f, 1.0f), X_AXIS, -90.0f, glm::vec3(x, 1.0f, -23.0f));
+		glDrawElements(GL_TRIANGLES, g_maze.NumIndices(), GL_UNSIGNED_SHORT, 0);
+
+
+	}
+
+	for (int x = -9; x >= -20; x--) {
+		if (x <= -14 && x >= -15) {
+
+		}
+		else {
+		
+			transformObject(glm::vec3(1.0f, 1.0f, 1.0f), X_AXIS, -90.0f, glm::vec3(15.0f, 1.0f, x));
+			glDrawElements(GL_TRIANGLES, g_maze.NumIndices(), GL_UNSIGNED_SHORT, 0);
+		}
+
+	}
+
+	for (int x = 16; x <= 19; x++) {
+
+		
+		transformObject(glm::vec3(1.0f, 1.0f, 1.0f), X_AXIS, -90.0f, glm::vec3(x, 1.0f, -9.0f));
+		glDrawElements(GL_TRIANGLES, g_maze.NumIndices(), GL_UNSIGNED_SHORT, 0);
+	}
+	for (int x = 16; x <= 19; x++) {
+
+	
+		transformObject(glm::vec3(1.0f, 1.0f, 1.0f), X_AXIS, -90.0f, glm::vec3(x, 1.0f, -20.0f));
+		glDrawElements(GL_TRIANGLES, g_maze.NumIndices(), GL_UNSIGNED_SHORT, 0);
+	}
+
+	for (int x = -9; x >= -20; x--) {
+
+		
+		transformObject(glm::vec3(1.0f, 1.0f, 1.0f), X_AXIS, -90.0f, glm::vec3(19.0f, 1.0f, x));
+		glDrawElements(GL_TRIANGLES, g_maze.NumIndices(), GL_UNSIGNED_SHORT, 0);
+
+	}
+	for (int x = -6; x >= -22; x--) {
+		if (x < -13 && x > -16) {
+
+		}
+		else {
+	
+			transformObject(glm::vec3(1.0f, 1.0f, 1.0f), X_AXIS, -90.0f, glm::vec3(21.0f, 1.0f, x));
+			glDrawElements(GL_TRIANGLES, g_maze.NumIndices(), GL_UNSIGNED_SHORT, 0);
+		}
+	}
+	for (int x = 22; x <= 23; x++) {
+
+	
+		transformObject(glm::vec3(1.0f, 1.0f, 1.0f), X_AXIS, -90.0f, glm::vec3(x, 1.0f, -16.0f));
+		glDrawElements(GL_TRIANGLES, g_maze.NumIndices(), GL_UNSIGNED_SHORT, 0);
+	}
+	for (int x = 22; x <= 23; x++) {
+
+	
+		transformObject(glm::vec3(1.0f, 1.0f, 1.0f), X_AXIS, -90.0f, glm::vec3(x, 1.0f, -13.0f));
+		glDrawElements(GL_TRIANGLES, g_maze.NumIndices(), GL_UNSIGNED_SHORT, 0);
+	}
+
+	for (int x = -9; x >= -20; x--) {
+		if (x <= -12 && x >= -17) {
+
+		}
+		else {
+		
+			transformObject(glm::vec3(1.0f, 1.0f, 1.0f), X_AXIS, -90.0f, glm::vec3(23.0f, 1.0f, x));
+			glDrawElements(GL_TRIANGLES, g_maze.NumIndices(), GL_UNSIGNED_SHORT, 0);
+		}
+	}
+
+	for (int x = 23; x <= 25; x++) {
+
+	
+		transformObject(glm::vec3(1.0f, 1.0f, 1.0f), X_AXIS, -90.0f, glm::vec3(x, 1.0f, -9.0f));
+		glDrawElements(GL_TRIANGLES, g_maze.NumIndices(), GL_UNSIGNED_SHORT, 0);
+	}
+
+	for (int x = 23; x <= 25; x++) {
+
+	
+		transformObject(glm::vec3(1.0f, 1.0f, 1.0f), X_AXIS, -90.0f, glm::vec3(x, 1.0f, -20.0f));
+		glDrawElements(GL_TRIANGLES, g_maze.NumIndices(), GL_UNSIGNED_SHORT, 0);
+	}
+
+
+	for (int x = -9; x >= -20; x--) {
+		if (x <= -13 && x >= -16) {
+
+		}
+		else {
+	
+			transformObject(glm::vec3(1.0f, 1.0f, 1.0f), X_AXIS, -90.0f, glm::vec3(25.0f, 1.0f, x));
+			glDrawElements(GL_TRIANGLES, g_maze.NumIndices(), GL_UNSIGNED_SHORT, 0);
+		}
+	}
+
+	for (int x = 25; x <= 31; x++) {
+
+		
+		transformObject(glm::vec3(1.0f, 1.0f, 1.0f), X_AXIS, -90.0f, glm::vec3(x, 1.0f, -17.0f));
+		glDrawElements(GL_TRIANGLES, g_maze.NumIndices(), GL_UNSIGNED_SHORT, 0);
+	}
+	for (int x = 25; x <= 31; x++) {
+
+
+		transformObject(glm::vec3(1.0f, 1.0f, 1.0f), X_AXIS, -90.0f, glm::vec3(x, 1.0f, -12.0f));
+		glDrawElements(GL_TRIANGLES, g_maze.NumIndices(), GL_UNSIGNED_SHORT, 0);
+	}
+	for (int x = -12; x >= -17; x--) {
+
+	
+		transformObject(glm::vec3(1.0f, 1.0f, 1.0f), X_AXIS, -90.0f, glm::vec3(31.0f, 1.0f, x));
+		glDrawElements(GL_TRIANGLES, g_maze.NumIndices(), GL_UNSIGNED_SHORT, 0);
+
+	}
+
+	for (int x = -7; x >= -23; x--) {
+		if (x <= -13 && x >= -16) {
+
+		}
+		else {
+		
+			transformObject(glm::vec3(1.0f, 1.0f, 1.0f), X_AXIS, -90.0f, glm::vec3(34.0f, 1.0f, x));
+			glDrawElements(GL_TRIANGLES, g_maze.NumIndices(), GL_UNSIGNED_SHORT, 0);
+		}
+	}
+
+}
+
+	//================================================================================================================================
+
+
+
+
+	//Gate
+	glBindTexture(GL_TEXTURE_2D, gateTx);
+	g_gate.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
+	transformObject(glm::vec3(4.4f, 2.0f, 1.0f), Y_AXIS, 90.0f, glm::vec3(36.0f, 1.0f, -12.8f));
 	glDrawElements(GL_TRIANGLES, g_gate.NumIndices(), GL_UNSIGNED_SHORT, 0);
 
 
 
+
+	//stairs
+	for (int x = -14; x >= -17; x--) {
+		glBindTexture(GL_TEXTURE_2D, wallTx);
+		g_cube.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
+		transformObject(glm::vec3(1.0f, 0.75f, 1.0f), X_AXIS, 0.0f, glm::vec3(37.0f, 0.0f, x));
+		glDrawElements(GL_TRIANGLES, g_cube.NumIndices(), GL_UNSIGNED_SHORT, 0);
+		glBindTexture(GL_TEXTURE_2D, wallTx);
+
+	}
+	for (int x = -14; x >= -17; x--) {
 	
+		
+		transformObject(glm::vec3(1.0f, 1.0f, 1.0f), X_AXIS, 0.0f, glm::vec3(36.0f, 0.0f, x));
+		glDrawElements(GL_TRIANGLES, g_cube.NumIndices(), GL_UNSIGNED_SHORT, 0);
+
+
+	}
+	for (int x = -14; x >= -17; x--) {
+		glBindTexture(GL_TEXTURE_2D, wallTx);
+		g_cube.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
+		transformObject(glm::vec3(1.0f, 0.5f, 1.0f), X_AXIS, 0.0f, glm::vec3(38.0f, 0.0f, x));
+		glDrawElements(GL_TRIANGLES, g_cube.NumIndices(), GL_UNSIGNED_SHORT, 0);
+		glBindTexture(GL_TEXTURE_2D, wallTx);
+
+	}
+	for (int x = -14; x >= -17; x--) {
+		glBindTexture(GL_TEXTURE_2D, wallTx);
+		g_cube.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
+		transformObject(glm::vec3(1.0f, 0.25f, 1.0f), X_AXIS, 0.0f, glm::vec3(39.0f, 0.0f, x));
+		glDrawElements(GL_TRIANGLES, g_cube.NumIndices(), GL_UNSIGNED_SHORT, 0);
+		glBindTexture(GL_TEXTURE_2D, wallTx);
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	glBindVertexArray(0); // Done writing.
 	glutSwapBuffers(); // Now for a potentially smoother render.
 }

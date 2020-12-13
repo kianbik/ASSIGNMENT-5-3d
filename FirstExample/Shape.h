@@ -411,13 +411,36 @@ struct Prism : public Shape
 		shape_indices.push_back(sides);
 
 
-		for (int i = 0; i < shape_vertices.size(); i += 1)
+		for (int i = 0; i < shape_vertices.size(); i += 8)
 		{
-			shape_uvs.push_back(1); // No texture for grid so value doesn't matter.
-			shape_uvs.push_back(0);
+
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(0.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(0.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(0.0f);
+			shape_uvs.push_back(0.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(0.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(0.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(0.0f);
+			shape_uvs.push_back(0.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(0.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(0.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(0.0f);
+			shape_uvs.push_back(0.0f);
+
+
 		}
-		for (unsigned i = 0; i < shape_uvs.size(); i++)
-			shape_uvs[i] *= sides;
 
 	
 		ColorShape(1.0f, 1.0f, 1.0f);
@@ -494,6 +517,153 @@ struct Gate : public Shape
 			shape_uvs.push_back(shape_vertices[i]);
 			shape_uvs.push_back(shape_vertices[i + 1]);
 		}*/
+		ColorShape(1.0f, 1.0f, 1.0f);
+		CalcAverageNormals(shape_indices, shape_indices.size(), shape_vertices, shape_vertices.size());
+	}
+};
+struct Ground : public Shape // Vertical plane of 1x1 units across.
+{
+	Ground()
+	{
+		shape_indices = {
+			0, 1, 2,
+			2, 3, 0
+		};
+		shape_vertices = {
+			0.0f, 0.0f, 0.0f,
+			30.0f, 0.0f, 0.0f,
+			30.0f, 22.0f, 0.0f,
+			0.0f, 22.0f, 0.0f
+		};
+		shape_uvs = {
+			0.0f, 0.0f,
+			3.0f, 0.0f,
+			3.0f, 3.0f,
+			0.0f, 3.0f
+		};
+		/*for (int i = 0; i < shape_vertices.size(); i += 3)
+		{
+			shape_uvs.push_back(shape_vertices[i]);
+			shape_uvs.push_back(shape_vertices[i + 1]);
+		}*/
+		ColorShape(1.0f, 1.0f, 1.0f);
+		CalcAverageNormals(shape_indices, shape_indices.size(), shape_vertices, shape_vertices.size());
+	}
+};
+
+
+struct ConeTwo : public Shape
+{
+	ConeTwo(int sides)
+	{
+		float theta = 0.0f;
+		// Top face.
+		shape_vertices.push_back(0.5f);
+		shape_vertices.push_back(2.0f);
+		shape_vertices.push_back(0.5f);
+		for (int i = 0; i < sides; ++i)
+		{
+			shape_vertices.push_back(0.5f + 0.5f * cos(theta));
+			shape_vertices.push_back(0.0f);
+			shape_vertices.push_back(0.5f + 0.5f * sin(theta));
+			theta += 2 * PI / sides;
+		}
+		// Bottom face.
+		shape_vertices.push_back(0.5f);
+		shape_vertices.push_back(0.0f);
+		shape_vertices.push_back(0.5f);
+		for (int i = 0; i < sides; ++i)
+		{
+			shape_vertices.push_back(0.5f + 0.5f * cos(theta));
+			shape_vertices.push_back(0.0f);
+			shape_vertices.push_back(0.5f + 0.5f * sin(theta));
+			theta += 2 * PI / sides;
+		}
+		// Indices now.
+		// Bottom face.
+		for (int i = sides + 1; i < sides * 2; i++)
+		{
+			shape_indices.push_back(sides + 1);
+			shape_indices.push_back(i + 1);
+			shape_indices.push_back(i + 2);
+		}
+		shape_indices.push_back(sides + 1);
+		shape_indices.push_back(sides * 2 + 1);
+		shape_indices.push_back(sides + 2);
+		// Middle faces.
+		for (int i = 1; i < sides; i++)
+		{
+			// Triangle one.
+			shape_indices.push_back(i);
+			shape_indices.push_back(i + 1);
+			shape_indices.push_back(sides + i + 2);
+			// Triangle two.
+			shape_indices.push_back(sides + i + 2);
+			shape_indices.push_back(sides + i + 1);
+			shape_indices.push_back(i);
+		}
+		shape_indices.push_back(sides);
+		shape_indices.push_back(1);
+		shape_indices.push_back(sides + 2);
+		shape_indices.push_back(sides + 2);
+		shape_indices.push_back(sides * 2 + 1);
+		shape_indices.push_back(sides);
+		// Top face.
+		for (int i = 1; i < sides; i++)
+		{
+			shape_indices.push_back(0);
+			shape_indices.push_back(i + 1);
+			shape_indices.push_back(i);
+		}
+		shape_indices.push_back(0);
+		shape_indices.push_back(1);
+		shape_indices.push_back(sides);
+
+		for (int i = 0; i < shape_vertices.size(); i += 8)
+		{
+
+			shape_uvs.push_back(0.0f);
+			shape_uvs.push_back(0.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(0.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(0.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(0.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(0.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(0.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(0.0f);
+			shape_uvs.push_back(1.0f);//
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(1.0f);
+			shape_uvs.push_back(0.0f);
+			shape_uvs.push_back(1.0f);
+	
+		
+	
+	
+		
+
+			
+
+
+
+
+
+		}
+
 		ColorShape(1.0f, 1.0f, 1.0f);
 		CalcAverageNormals(shape_indices, shape_indices.size(), shape_vertices, shape_vertices.size());
 	}
