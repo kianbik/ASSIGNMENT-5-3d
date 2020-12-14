@@ -62,7 +62,7 @@ float rotAngle = 0.0f;
 
 
 // Texture variables.
-GLuint towerTx, secondTx, wallTx, planeTex, gateTx, groundTx, headTx, mazeTx;
+GLuint towerTx, secondTx, wallTx, planeTex, gateTx, groundTx, headTx, mazeTx, stairsTx, mainwalltx;
 GLint width, height, bitDepth;
 
 // Light variables.
@@ -86,11 +86,11 @@ void timer(int);
 
 void resetView()
 {
-	position = glm::vec3(5.0f, 3.0f, 10.0f);
+	position = glm::vec3(45.0f, 4.0f, -15.0f);
 	frontVec = glm::vec3(0.0f, 0.0f, -1.0f);
 	worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	pitch = 0.0f;
-	yaw = -90.0f;
+	yaw = -180.0f;
 	// View will now get set only in transformObject
 }
 
@@ -191,7 +191,7 @@ void init(void)
 
 	unsigned char* image5 = stbi_load("dirt.jpg", &width, &height, &bitDepth, 0);
 	if (!image5) cout << "Unable to load file!" << endl;
-	//gorund
+	//ground
 	glGenTextures(1, &groundTx);
 	glBindTexture(GL_TEXTURE_2D, groundTx);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image5);
@@ -233,7 +233,35 @@ void init(void)
 	//glBindTexture(GL_TEXTURE_2D, 0);
 	stbi_image_free(image7);
 
+	//starts blocks
+	unsigned char* image8 = stbi_load("stone.jpg", &width, &height, &bitDepth, 0);
+	if (!image8) cout << "Unable to load file!" << endl;
 
+	glGenTextures(1, &stairsTx);
+	glBindTexture(GL_TEXTURE_2D, stairsTx);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image8);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	//glBindTexture(GL_TEXTURE_2D, 0);
+	stbi_image_free(image8);
+
+	//main wall
+	unsigned char* image9 = stbi_load("stone3.jpg", &width, &height, &bitDepth, 0);
+	if (!image9) cout << "Unable to load file!" << endl;
+
+	glGenTextures(1, &mainwalltx);
+	glBindTexture(GL_TEXTURE_2D, mainwalltx);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image9);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	//glBindTexture(GL_TEXTURE_2D, 0);
+	stbi_image_free(image9);
 
 
 	glUniform1i(glGetUniformLocation(program, "texture0"), 0);
@@ -411,36 +439,36 @@ void display(void)
 		glDrawElements(GL_TRIANGLES, g_cube.NumIndices(), GL_UNSIGNED_SHORT, 0);
 		glBindTexture(GL_TEXTURE_2D, wallTx);
 	}
-	//forth wall:
+	//Main wall:
 	for (int x = -5; x >= -13; x--) {
 		if (x % 2 != 0) {
-			glBindTexture(GL_TEXTURE_2D, wallTx);
+			glBindTexture(GL_TEXTURE_2D, mainwalltx);
 			g_cube.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
 			transformObject(glm::vec3(1.0f, 3.5f, 1.0f), X_AXIS, 0.0f, glm::vec3(35.0f, 0.0f, x));
 			glDrawElements(GL_TRIANGLES, g_cube.NumIndices(), GL_UNSIGNED_SHORT, 0);
-			glBindTexture(GL_TEXTURE_2D, wallTx);
+			glBindTexture(GL_TEXTURE_2D, mainwalltx);
 		}
 		else
-			glBindTexture(GL_TEXTURE_2D, wallTx);
+			glBindTexture(GL_TEXTURE_2D, mainwalltx);
 		g_cube.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
 		transformObject(glm::vec3(1.0f, 3.0f, 1.0f), X_AXIS, 0.0f, glm::vec3(35.0f, 0.0f, x));
 		glDrawElements(GL_TRIANGLES, g_cube.NumIndices(), GL_UNSIGNED_SHORT, 0);
-		glBindTexture(GL_TEXTURE_2D, wallTx);
+		glBindTexture(GL_TEXTURE_2D, mainwalltx);
 	}
 	for (int x = -18; x >= -26; x--) {
 		if (x % 2 == 0) {
-			glBindTexture(GL_TEXTURE_2D, wallTx);
+			glBindTexture(GL_TEXTURE_2D, mainwalltx);
 			g_cube.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
 			transformObject(glm::vec3(1.0f, 3.5f, 1.0f), X_AXIS, 0.0f, glm::vec3(35.0f, 0.0f, x));
 			glDrawElements(GL_TRIANGLES, g_cube.NumIndices(), GL_UNSIGNED_SHORT, 0);
-			glBindTexture(GL_TEXTURE_2D, wallTx);
+			glBindTexture(GL_TEXTURE_2D, mainwalltx);
 		}
 		else
-			glBindTexture(GL_TEXTURE_2D, wallTx);
+			glBindTexture(GL_TEXTURE_2D, mainwalltx);
 		g_cube.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
 		transformObject(glm::vec3(1.0f, 3.0f, 1.0f), X_AXIS, 0.0f, glm::vec3(35.0f, 0.0f, x));
 		glDrawElements(GL_TRIANGLES, g_cube.NumIndices(), GL_UNSIGNED_SHORT, 0);
-		glBindTexture(GL_TEXTURE_2D, wallTx);
+		glBindTexture(GL_TEXTURE_2D, mainwalltx);
 	}
 
 	//tower1
@@ -469,7 +497,7 @@ void display(void)
 	glDrawElements(GL_TRIANGLES, g_head.NumIndices(), GL_UNSIGNED_SHORT, 0);
 
 
-	//tower2
+	//tower3
 	glBindTexture(GL_TEXTURE_2D, towerTx);
 	g_prism.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
 	transformObject(glm::vec3(1.5f, 5.5f, 1.5f), X_AXIS, 0.0f, glm::vec3(34.85f, 0.0f, -4.2f));
@@ -481,7 +509,7 @@ void display(void)
 	glDrawElements(GL_TRIANGLES, g_head.NumIndices(), GL_UNSIGNED_SHORT, 0);
 
 
-	//tower2
+	//tower4
 
 	glBindTexture(GL_TEXTURE_2D, towerTx);
 	g_prism.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
@@ -496,10 +524,21 @@ void display(void)
 	glDrawElements(GL_TRIANGLES, g_head.NumIndices(), GL_UNSIGNED_SHORT, 0);
 
 
+
+	//Gate Tower 1
+	glBindTexture(GL_TEXTURE_2D, towerTx);
+	g_prism.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
+	transformObject(glm::vec3(1.5f, 5.5f, 1.5f), X_AXIS, 0.0f, glm::vec3(35.0f, 0.0f, -13.05f));
+	glDrawElements(GL_TRIANGLES, g_prism.NumIndices(), GL_UNSIGNED_SHORT, 0);
+
+
+	//Gate Tower 2
+	glBindTexture(GL_TEXTURE_2D, towerTx);
+	g_prism.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
+	transformObject(glm::vec3(1.5f, 5.5f, 1.5f), X_AXIS, 0.0f, glm::vec3(35.0f, 0.0f, -18.45f));
+	glDrawElements(GL_TRIANGLES, g_prism.NumIndices(), GL_UNSIGNED_SHORT, 0);
+
 	//ground
-
-
-
 
 	glBindTexture(GL_TEXTURE_2D, groundTx);
 	g_ground.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
@@ -723,11 +762,11 @@ void display(void)
 
 	//stairs
 	for (int x = -14; x >= -17; x--) {
-		glBindTexture(GL_TEXTURE_2D, wallTx);
+		glBindTexture(GL_TEXTURE_2D, stairsTx);
 		g_cube.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
 		transformObject(glm::vec3(1.0f, 0.75f, 1.0f), X_AXIS, 0.0f, glm::vec3(37.0f, 0.0f, x));
 		glDrawElements(GL_TRIANGLES, g_cube.NumIndices(), GL_UNSIGNED_SHORT, 0);
-		glBindTexture(GL_TEXTURE_2D, wallTx);
+		glBindTexture(GL_TEXTURE_2D, stairsTx);
 
 	}
 	for (int x = -14; x >= -17; x--) {
@@ -739,19 +778,19 @@ void display(void)
 
 	}
 	for (int x = -14; x >= -17; x--) {
-		glBindTexture(GL_TEXTURE_2D, wallTx);
+		glBindTexture(GL_TEXTURE_2D, stairsTx);
 		g_cube.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
 		transformObject(glm::vec3(1.0f, 0.5f, 1.0f), X_AXIS, 0.0f, glm::vec3(38.0f, 0.0f, x));
 		glDrawElements(GL_TRIANGLES, g_cube.NumIndices(), GL_UNSIGNED_SHORT, 0);
-		glBindTexture(GL_TEXTURE_2D, wallTx);
+		glBindTexture(GL_TEXTURE_2D, stairsTx);
 
 	}
 	for (int x = -14; x >= -17; x--) {
-		glBindTexture(GL_TEXTURE_2D, wallTx);
+		glBindTexture(GL_TEXTURE_2D, stairsTx);
 		g_cube.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
 		transformObject(glm::vec3(1.0f, 0.25f, 1.0f), X_AXIS, 0.0f, glm::vec3(39.0f, 0.0f, x));
 		glDrawElements(GL_TRIANGLES, g_cube.NumIndices(), GL_UNSIGNED_SHORT, 0);
-		glBindTexture(GL_TEXTURE_2D, wallTx);
+		glBindTexture(GL_TEXTURE_2D, stairsTx);
 
 	}
 
@@ -797,7 +836,7 @@ void timer(int) { // essentially our update()
 
 //---------------------------------------------------------------------
 //
-// keyDown
+// keyDownj
 //
 void keyDown(unsigned char key, int x, int y) // x and y is mouse location upon key press.
 {
