@@ -381,7 +381,7 @@ void display(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glBindVertexArray(vao);
-	
+
 
 	glBindTexture(GL_TEXTURE_2D, planeTex);
 	g_plane.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
@@ -487,8 +487,13 @@ void display(void)
 	//tower2
 	glBindTexture(GL_TEXTURE_2D, towerTx);
 	g_prism.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
-	transformObject(glm::vec3(1.5f, 5.5f, 1.5f), X_AXIS, 0.0f, glm::vec3(5.85f, 0.0f, -27.2f));
-	glDrawElements(GL_TRIANGLES, g_prism.NumIndices(), GL_UNSIGNED_SHORT, 0);
+
+	for (float i = 0.0f; i <6.0f; i++) {
+		transformObject(glm::vec3(1.5f, 1.0f, 1.5f), X_AXIS, 0.0f, glm::vec3(5.85f, i, -27.2f));
+		glDrawElements(GL_TRIANGLES, g_prism.NumIndices(), GL_UNSIGNED_SHORT, 0);
+	}
+
+
 
 
 	glBindTexture(GL_TEXTURE_2D, headTx);
@@ -496,7 +501,7 @@ void display(void)
 	transformObject(glm::vec3(2.0f, 1.5f, 2.0f), X_AXIS, 0.0f, glm::vec3(5.6f, 5.5f, -27.5f));
 	glDrawElements(GL_TRIANGLES, g_head.NumIndices(), GL_UNSIGNED_SHORT, 0);
 
-
+	
 	//tower3
 	glBindTexture(GL_TEXTURE_2D, towerTx);
 	g_prism.BufferShape(&ibo, &points_vbo, &colors_vbo, &uv_vbo, &normals_vbo, program);
